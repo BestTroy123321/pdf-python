@@ -66,6 +66,23 @@ Zasady mapowania kluczy:
 
 Skrypt wyciąga wyłącznie strukturę pól (`template`). Jeśli pakiet `template` nie jest dostępny jako osobny strumień XFA, skrypt próbuje odnaleźć element `<template>` wewnątrz pełnego XDP i zapisać tylko tę część.
 
+## Ekstrakcja AcroForm – schemat i pola
+
+Dla plików PDF opartych o **AcroForm** możesz wyeksportować strukturę pól (schemat) i listę pól do wypełnienia.
+
+```bash
+python extract_acroform.py [opcjonalnie: ścieżka_pdf] [opcjonalnie: ścieżka_xml] [opcjonalnie: ścieżka_pola]
+```
+
+- Domyślnie wejście: `xfa.pdf`
+- Wyjście:
+  - `schemat_acro.xml` – hierarchia pól (`name`, `type`, `flags`, `readonly`, opcje dla `/Ch`, eksporty dla `/Btn`)
+  - `pola_acro.txt` – płaska lista nazw pól możliwych do wypełnienia (bez `readonly`, `pushbutton`, `Sig`)
+
+Uwagi:
+- Jeśli w dokumencie brak `/AcroForm`, skrypt wypisze komunikat i zakończy działanie.
+- Nazwy pól w `pola_acro.txt` są pełnymi ścieżkami złożonymi z `/T` kolejnych poziomów (np. `Sekcja1.Dane.Imie`).
+
 ## Wypełnianie AcroForm z JSON
 
 Ten tryb obsługuje klasyczne formularze AcroForm (bez XFA). Dane z `dane.json` są mapowane na nazwy pól AcroForm.
