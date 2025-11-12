@@ -159,6 +159,53 @@ def build_schema_xml(acro_form: pikepdf.Object) -> etree._Element:
                     item = etree.SubElement(ons_node, "value")
                     item.text = n
 
+        # Bieżące wartości
+        try:
+            if ft == "/Tx":
+                v = field.get("/V")
+                if v is not None:
+                    val = str(v)
+                    val_node = etree.SubElement(node, "value")
+                    val_node.text = val
+            elif ft == "/Ch":
+                v = field.get("/V")
+                if isinstance(v, pikepdf.Array):
+                    for item in v:
+                        val_node = etree.SubElement(node, "value")
+                        val_node.text = str(item)
+                elif v is not None:
+                    val_node = etree.SubElement(node, "value")
+                    val_node.text = str(v)
+            elif ft == "/Btn" and not push:
+                raw_v = field.get("/V")
+                raw_s = str(raw_v) if raw_v is not None else None
+                kids = field.get("/Kids") or []
+                # zbierz kandydatów ON
+                on_names: List[str] = []
+                off_name = "/Off"
+                for kid in kids:
+                    if is_widget(kid):
+                        ons, off = get_appearance_names(kid)
+                        off_name = off or off_name
+                        for n in ons:
+                            if n not in on_names:
+                                on_names.append(n)
+                if radio:
+                    # Radio – wartość to wybrany export (np. /M), brak → brak value
+                    if raw_s and raw_s != "/Off":
+                        val_node = etree.SubElement(node, "value")
+                        val_node.text = raw_s
+                else:
+                    # Checkbox – znormalizuj do true/false na podstawie /V i nazw ON
+                    checked = False
+                    if raw_s and on_names:
+                        checked = any(raw_s.lower() == n.lower() for n in on_names)
+                    val_node = etree.SubElement(node, "value")
+                    val_node.text = "true" if checked else "false"
+        except Exception:
+            # Pomijamy problemy z odczytem wartości pojedynczych pól
+            pass
+
         # dzieci będące polami
         kids = field.get("/Kids") or []
         for kid in kids:

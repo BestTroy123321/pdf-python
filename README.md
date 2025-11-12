@@ -79,6 +79,13 @@ python extract_acroform.py [opcjonalnie: ścieżka_pdf] [opcjonalnie: ścieżka_
   - `schemat_acro.xml` – hierarchia pól (`name`, `type`, `flags`, `readonly`, opcje dla `/Ch`, eksporty dla `/Btn`)
   - `pola_acro.txt` – płaska lista nazw pól możliwych do wypełnienia (bez `readonly`, `pushbutton`, `Sig`)
 
+Wartości wypełnione w PDF:
+- `schemat_acro.xml` zawiera także bieżące wartości pól:
+  - Tekst (`/Tx`) i wybór (`/Ch`) – elementy `<value>` z aktualną wartością (dla list wielokrotnego wyboru – wiele `<value>`).
+  - Checkbox/Radio (`/Btn`) –
+    - Radio: `<value>` z wybranym exportem (np. `/M`), brak wartości oznacza niewybrany.
+    - Checkbox: `<value>` z `true`/`false` (na podstawie `/V` i nazw ON z `/AP`).
+
 Uwagi:
 - Jeśli w dokumencie brak `/AcroForm`, skrypt wypisze komunikat i zakończy działanie.
 - Nazwy pól w `pola_acro.txt` są pełnymi ścieżkami złożonymi z `/T` kolejnych poziomów (np. `Sekcja1.Dane.Imie`).
